@@ -1269,7 +1269,7 @@ static int add_partition(struct fdisk_context *cxt, size_t n,
 
 	DBG(LABEL, ul_debug("DOS: adding partition %zu", n));
 
-	sys = pa && pa->type ? pa->type->code : MBR_LINUX_DATA_PARTITION;
+	sys = pa && pa->type ? pa->type->code : MBR_W95_FAT32_LBA_PARTITION; // HACK: Fat32 as default!!
 	is_logical = n >= 4;
 
 	if (p && is_used_partition(p)) {

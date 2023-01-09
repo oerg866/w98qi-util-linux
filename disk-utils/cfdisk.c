@@ -4,6 +4,9 @@
  *     Copyright (C) 2014-2015 Karel Zak <kzak@redhat.com>
  *     Copyright (C) 1994 Kevin E. Martin (martin@cs.unc.edu)
  *
+ *     Modifications (hacks, really) for Windows 98 QuickInstall
+ *           by Eric Voirin (oerg866@googlemail.com)
+ *
  *     The original cfdisk was inspired by the fdisk program
  *           by A. V. Le Blanc (leblanc@mcc.ac.uk.
  *
@@ -2181,9 +2184,9 @@ static int ui_create_label(struct cfdisk *cf)
 
 	while (fdisk_next_label(cf->cxt, &lb) == 0) {
 		if (fdisk_label_is_disabled(lb) ||
-		    fdisk_label_get_type(lb) == FDISK_DISKLABEL_BSD)
+		    fdisk_label_get_type(lb) != FDISK_DISKLABEL_DOS) /* Win98QuickInstall HACK -> Only support creating MBR disks! */
 			continue;
-		cm[i++].name = fdisk_label_get_name(lb);
+		cm[i++].name = "OK";
 	}
 
 	erase();
@@ -2191,10 +2194,12 @@ static int ui_create_label(struct cfdisk *cf)
 	/* make the new menu active */
 	menu_push(cf, cm);
 	cf->menu->vertical = 1;
-	menu_set_title(cf->menu, _("Select label type"));
+
+	/* Win98QI hack: It looks like a menu. But it's hacked to really be a confirmation dialog... */
+	menu_set_title(cf->menu, "No partition table found. Will create MBR disk!");
 
 	if (!cf->zero_start)
-		ui_info(_("Device does not contain a recognized partition table."));
+		ui_info("Device does not contain a recognized partition table.");
 
 
 	while (!sig_die) {
@@ -2202,7 +2207,7 @@ static int ui_create_label(struct cfdisk *cf)
 
 		if (refresh_menu) {
 			ui_draw_menu(cf);
-			ui_hint(_("Select a type to create a new label, press 'L' to load script file, 'Q' quits."));
+			ui_hint("Press ENTER to confirm or Q to quit."); /* W98QI only supports these here.. */
 			refresh();
 			refresh_menu = 0;
 		}
@@ -2220,20 +2225,22 @@ static int ui_create_label(struct cfdisk *cf)
 		case '\n':
 		case '\r':
 			d = menu_get_menuitem(cf, cf->menu->idx);
+			/* Win98 QuickInstall hack, force creating MBR disk here */
 			if (d)
-				rc = fdisk_create_disklabel(cf->cxt, d->name);
+				rc = fdisk_create_disklabel(cf->cxt, fdisk_label_get_name("dos"));
 			goto done;
 		case KEY_ESC:
 		case 'q':
 		case 'Q':
 			goto done;
+/*		Win98 QuickInstall hack, disable the script load option here
 		case 'l':
 		case 'L':
 			rc = ui_script_read(cf);
 			if (rc == 0)
 				goto done;
 			refresh_menu = 1;
-			break;
+			break;*/
 		}
 	}
 
