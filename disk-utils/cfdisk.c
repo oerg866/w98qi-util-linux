@@ -2227,7 +2227,7 @@ static int ui_create_label(struct cfdisk *cf)
 			d = menu_get_menuitem(cf, cf->menu->idx);
 			/* Win98 QuickInstall hack, force creating MBR disk here */
 			if (d)
-				rc = fdisk_create_disklabel(cf->cxt, fdisk_label_get_name("dos"));
+				rc = fdisk_create_disklabel(cf->cxt, "dos");
 			goto done;
 		case KEY_ESC:
 		case 'q':
