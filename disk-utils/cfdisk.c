@@ -2273,8 +2273,8 @@ static int ui_help(void)
 		N_("  t          Change the partition type"),
 		N_("  u          Dump disk layout to sfdisk compatible script file"),
 		N_("  W          Write partition table to disk (you must enter uppercase W);"),
-		N_("               since this might destroy data on the disk, you must either"),
-		N_("               confirm or deny the write by entering 'yes' or 'no'"),
+	/*	N_("               since this might destroy data on the disk, you must either"),
+		N_("               confirm or deny the write by entering 'yes' or 'no'"), */
 		N_("  x          Display/hide extra information about a partition"),
 		N_("Up Arrow     Move cursor to the previous partition"),
 		N_("Down Arrow   Move cursor to the next partition"),
@@ -2514,6 +2514,7 @@ static int main_menu_action(struct cfdisk *cf, int key)
 			break;
 		}
 
+		/* WIN98QI hack: Don't have the user have to write "yes" to save the mbr - this is very cumbersome.
 		rc = ui_get_string(
 			  _("Are you sure you want to write the partition "
 			    "table to disk? "),
@@ -2526,6 +2527,8 @@ static int main_menu_action(struct cfdisk *cf, int key)
 			info = _("Did not write partition table to disk.");
 			break;
 		}
+		*/
+
 		rc = fdisk_write_disklabel(cf->cxt);
 		if (rc)
 			warn = _("Failed to write disklabel.");
